@@ -1,10 +1,16 @@
--------
+----------------------------------------------------------------------------------------
 -- Library Imports
--------
+----------------------------------------------------------------------------------------
 local LAM2 = LibStub:GetLibrary("LibAddonMenu-2.0")
 
+----------------------------------------------------------------------------------------
+-- Namespace Table
+----------------------------------------------------------------------------------------
 DefaultSlot = {}
 
+----------------------------------------------------------------------------------------
+-- Local tables 
+----------------------------------------------------------------------------------------
 local appData = {
     Name = "DefaultSlot",
     DisplayName = "Default Slot",
@@ -23,11 +29,16 @@ local tempVars = {
     siegeInUse = false
 }
 
+----------------------------------------------------------------------------------------
+-- Function Declarations
+----------------------------------------------------------------------------------------
 local UpdateSlotInChat
 local ResetSlot
 local Dbg
 
--- Detect if the addon is loaded.
+----------------------------------------------------------------------------------------
+-- Event handler for when the addon is loaded. This function triggers initialization
+----------------------------------------------------------------------------------------
 function DefaultSlot.OnAddOnLoaded(event, addonName)
 
     -- Looking for just my addon.
@@ -39,7 +50,9 @@ function DefaultSlot.OnAddOnLoaded(event, addonName)
 
 end
 
--- Triggers when the quickslot gets changed.
+----------------------------------------------------------------------------------------
+-- Event handler that is triggered when the quickslot gets changed.
+----------------------------------------------------------------------------------------
 function DefaultSlot.QuickSlotChanged(event, slotId)
     -- if it's not the default slot, prepare to possibly change it.
     if slotId ~= savedVars.DefaultSlotId then 
@@ -50,28 +63,40 @@ function DefaultSlot.QuickSlotChanged(event, slotId)
     end 
 end
 
+----------------------------------------------------------------------------------------
+-- Event handler that is triggered when the player sets up siege successfully.
+----------------------------------------------------------------------------------------
 function DefaultSlot.SiegeStarted(event)
     Dbg("Siege Started")
     tempVars.siegeInUse = true
 end
 
+----------------------------------------------------------------------------------------
+-- Event handler that is triggered when the player takes down siege successfully.
+----------------------------------------------------------------------------------------
 function DefaultSlot.SiegeEnded(event)
     Dbg("Siege Ended")
     tempVars.siegeInUse = false
 end
 
+----------------------------------------------------------------------------------------
+-- Event handler that is triggered when the siege weapon is busy (experimental).
+--      It was a failed attempt to determine if a repair kit was being used.
+----------------------------------------------------------------------------------------
 function DefaultSlot.SiegeBusy(event, siegeName)
     Dbg(siegeName .. " is busy!")
 end 
 
--- Initialize the addon 
+----------------------------------------------------------------------------------------
+-- Initializes the addon and initializes the creation of the settings menu.
+----------------------------------------------------------------------------------------
 function DefaultSlot:Initialize()
     DefaultSlot.CreateSettingsWindow()
-    --local colorizedName = GetColorizedText(DefaultSlot.name, COLORS.PURPLE)
-    --local initMsg = zo_strformat("<<1>> has been Initialized.", colorizedName)
-    --zo_callLater(function() d(initMsg) end, 3000)
 end
 
+----------------------------------------------------------------------------------------
+-- Function to determine if the slot should delay or reset immediately.
+----------------------------------------------------------------------------------------
 function ResetSlot()   
     if(tempVars.siegeInUse and savedVars.SiegeSuppression) then
         -- pause default slot until seige isn't potentially in use, but invoke reset 
@@ -84,13 +109,22 @@ function ResetSlot()
     end 
 end
 
+----------------------------------------------------------------------------------------
+-- Function to push a message to chat indicating the item that was slotted.  This gets 
+--    called by a slot change that was invoked by the user or a slot change invoked by
+--    the Default Slot addon.
+----------------------------------------------------------------------------------------
 function UpdateSlotInChat(slotId)
     local item = GetItemLinkName(GetSlotItemLink(slotId))
     item = GetSlotItemLink(slotId)
-    local content = zo_strformat("Quickslot Changed to [<<1>>]", item)
+    local content = zo_strformat("Quickslot Changed to <<1>>", item)
     CHAT_SYSTEM:AddMessage(content)
 end 
 
+----------------------------------------------------------------------------------------
+-- Function to push a message to chat for debugging purposes.  Only works when debugging
+--    mode is enabled.  Debug messages are prefixed with ***
+----------------------------------------------------------------------------------------
 function Dbg(msg)
     if appData.Debug then
         local dbg = zo_strformat("*** <<1>>", msg)
@@ -98,13 +132,13 @@ function Dbg(msg)
     end 
 end 
 
---------
--- Settings Menu UI
---------
-
+----------------------------------------------------------------------------------------
+-- Settings Menu UI : This function invokes the LibAddonMenu-2.0 library to create the
+--    addon settings menu for Default Slot.
+----------------------------------------------------------------------------------------
 function DefaultSlot.CreateSettingsWindow()
 
-
+    -- A table to hold the data for setting up the settings window.
     local panelData = {
         type = "panel",
         name = appData.DisplayName,
@@ -115,6 +149,7 @@ function DefaultSlot.CreateSettingsWindow()
         registerForDefaults = true,
     }
 
+    -- A table contiaining the controls displayed on the settings menu.
     local optionsData = {
         [1] = {
             type = "header",
@@ -170,7 +205,7 @@ function DefaultSlot.CreateSettingsWindow()
         }
     }
 
-
+    -- Invocation of the sections defined above in creating the panel displayed in the settings -> addons menu.
     local cntrlOptionsPanel = LAM2:RegisterAddonPanel(appData.Name, panelData)
     LAM2:RegisterOptionControls(appData.Name, optionsData)
     OpenSettingsPanel = function()
@@ -179,7 +214,10 @@ function DefaultSlot.CreateSettingsWindow()
 end
 
 
--- Register the event handler for onload.
+
+----------------------------------------------------------------------------------------
+-- Event Registrations for the various API events being watched by the addon.
+----------------------------------------------------------------------------------------
 EVENT_MANAGER:RegisterForEvent(appData.Name, EVENT_ADD_ON_LOADED, DefaultSlot.OnAddOnLoaded)
 EVENT_MANAGER:RegisterForEvent(appData.Name, EVENT_ACTIVE_QUICKSLOT_CHANGED, DefaultSlot.QuickSlotChanged)
 EVENT_MANAGER:RegisterForEvent(appData.Name, EVENT_BEGIN_SIEGE_CONTROL, DefaultSlot.SiegeStarted)
