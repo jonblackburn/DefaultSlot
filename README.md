@@ -17,6 +17,8 @@ The addon uses the LibAddonMenu-2.0 library to add settings to the addon setting
 ### 0.1 Initial Version
 First build that was uploaded to GitHub
 
+### O.1.1 Updated to support API Level 18 (Homestead Update).
+
 #### Key Features
 - [x] Can configure the default slot by number, a texture slot key is shown on the settings screen that shows how the numbers align
 - [x] Can configure the amount of time in seconds to wait before triggering the change back to the default slot.

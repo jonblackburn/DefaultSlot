@@ -14,7 +14,7 @@ DefaultSlot = {}
 local appData = {
     Name = "DefaultSlot",
     DisplayName = "Default Slot",
-    Version = "0.1",
+    Version = "0.1.1",
     DataVersion = 1,
     Debug = true
 }
@@ -127,7 +127,7 @@ end
 ----------------------------------------------------------------------------------------
 function Dbg(msg)
     if appData.Debug then
-        local dbg = zo_strformat("*** <<1>>", msg)
+        local dbg = zo_strformat("*** <<1>> ***", msg)
         CHAT_SYSTEM:AddMessage(dbg)
     end 
 end 

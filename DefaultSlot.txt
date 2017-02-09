@@ -1,5 +1,5 @@
 ## Title: Default Slot
-## APIVersion: 100017
+## APIVersion: 100018
 ## Version: 0.1
 ## Author: @condorhauck
 ## SavedVariables: DefaultSlotData
